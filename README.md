@@ -114,7 +114,7 @@ for i in scheduler.main():
     pass
 ```
 
-The catching method is arbitrarily called `msg_echo()` and decorated with `MessageHandler`, whose parameters are the type of the message (`command`, that means we are instructing a component to do something for us), and its name (`echo`, automatically set by calling the `message_echo()` method). The `msg_echo()` method must accept one parameter, besides `self`, that is the content of the message. The content is not the entire message, but a dictionary containing only the payload; in this case, for a generic `command` message, the payload is a dictionary containing only the `parameters` key, that is 
+The catching method is arbitrarily called `msg_echo()` and decorated with `MessageHandler`, whose parameters are the type of the message (`command`, that means we are instructing a component to do something for us), and its name (`echo`, automatically set by calling the `message_echo()` method). The `msg_echo()` method must accept one parameter, besides `self`, that is the content of the message. The content is not the entire message, but a dictionary containing only the payload; in this case, for a generic `command` message, the payload is a dictionary containing only the `parameters` key, that is
 
 Seems overkill? Indeed, for such a simple application, it is. The following examples will hopefully show how those structures heavily simplify complex tasks.
 
@@ -189,7 +189,7 @@ for i in scheduler.main():
     pass
 ```
 
-As you can see the `EchoReceiveProcessor` redefines the `__init__()` method to allow passing just a Fingerprint; as a side-effect, `eqk` is now defined inside the method, but its nature does not change. It encompasses now two queues for the same exchange; the first queue is chared, given that every instance of the reveiver just names it `echo-queue`, while the second is private because the name changes with the PID and the host of the current receiver, and those values together are unique in the cluster.
+As you can see the `EchoReceiveProcessor` redefines the `__init__()` method to allow passing just a Fingerprint; as a side-effect, `eqk` is now defined inside the method, but its nature does not change. It encompasses now two queues for the same exchange; the first queue is shared, given that every instance of the receiver just names it `echo-queue`, while the second is private because the name changes with the PID and the host of the current receiver, and those values together are unique in the cluster.
 
 So we expect that sending messages with the `echo` key will result in hitting just one of the receivers at a time, in a round-robin fashion, while sending messages with the `echo-fanout` queue will reach every receiver.
 
@@ -229,7 +229,7 @@ class EchoReceiveProcessor(messaging.MessageProcessor):
         eqk = [
             (echo_shared.EchoExchange, [
                             ('echo-queue', 'echo-rk'),
-                            ]), 
+                            ]),
             ]
         super(EchoReceiveProcessor, self).__init__(fingerprint, eqk, None, None)
 
@@ -238,7 +238,7 @@ class EchoReceiveProcessor(messaging.MessageProcessor):
     def msg_echo(self, content, reply_func):
         print content['parameters']
         reply_func(messaging.MessageResult("RPC message received"))
-        
+
 
 
 fingerprint = messaging.Fingerprint('echo_receive', 'controller').as_dict()
@@ -411,7 +411,7 @@ Now you have to define a function that builds a `Message` containing the data yo
 ``` python
 class LoggingProducer(messaging.GenericProducer):
     eks = [(LoggingExchange, "log")]
-    
+
     def build_message_status_online(self):
         return messaging.MessageStatus('online')
 ```
@@ -473,7 +473,7 @@ When the maximum number of tries has been reached the call returns a `MessageRes
 
 ## GenericConsumer
 
-The `GenericConsumer` class implements a standard AMQP consumer, i.e. an object that can connect to exchanges through queues and fetch messages. 
+The `GenericConsumer` class implements a standard AMQP consumer, i.e. an object that can connect to exchanges through queues and fetch messages.
 
 A class that inherits from `GenericConsumer` shall define an `eqk` class attribute which is a list of tuples in the form `(Exchange, [(Queue, Key), (Queue, Key), ...])`; each tuple means that the given exchange will be subscribed by the listed queues, each of them with the relative routing key. The Queue may be defined as a plain string (the name of the queue) or as a dictionary with the 'name' and 'flags' keys; the second key will identify a dictionary of flags, such as `{'auto_delete':True}`.
 

@@ -293,7 +293,7 @@ As you can see the ``EchoReceiveProcessor`` redefines the ``__init__()``
 method to allow passing just a Fingerprint; as a side-effect, ``eqk`` is
 now defined inside the method, but its nature does not change. It
 encompasses now two queues for the same exchange; the first queue is
-chared, given that every instance of the reveiver just names it
+shared, given that every instance of the receiver just names it
 ``echo-queue``, while the second is private because the name changes
 with the PID and the host of the current receiver, and those values
 together are unique in the cluster.
@@ -355,7 +355,7 @@ exception replies, and their content changes accordingly.
             eqk = [
                 (echo_shared.EchoExchange, [
                                 ('echo-queue', 'echo-rk'),
-                                ]), 
+                                ]),
                 ]
             super(EchoReceiveProcessor, self).__init__(fingerprint, eqk, None, None)
 
@@ -364,7 +364,7 @@ exception replies, and their content changes accordingly.
         def msg_echo(self, content, reply_func):
             print content['parameters']
             reply_func(messaging.MessageResult("RPC message received"))
-            
+
 
 
     fingerprint = messaging.Fingerprint('echo_receive', 'controller').as_dict()
@@ -647,7 +647,7 @@ the data you want to send
 
     class LoggingProducer(messaging.GenericProducer):
         eks = [(LoggingExchange, "log")]
-        
+
         def build_message_status_online(self):
             return messaging.MessageStatus('online')
 
